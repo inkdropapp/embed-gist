@@ -1,9 +1,10 @@
 import { markdownRenderer } from 'inkdrop'
-import { gistProvider, PROVIDER_ID } from './gist.js'
+import type { Environment, IInkdropPlugin } from '@inkdropapp/types'
+import { createGistProvider, PROVIDER_ID } from './gist.js'
 
-class InkdropPlugin {
-  activate() {
-    markdownRenderer.embeddings.register(gistProvider)
+class InkdropPlugin implements IInkdropPlugin {
+  activate(app: Environment) {
+    markdownRenderer.embeddings.register(createGistProvider(app))
   }
 
   deactivate() {

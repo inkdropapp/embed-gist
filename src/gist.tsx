@@ -1,39 +1,64 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type {
   EmbeddedComponentProps,
-  EmbeddingProvider
+  EmbeddingProvider,
+  Environment
 } from '@inkdropapp/types'
-import { isGistURL, getEmbedURL } from './utils.js'
+import { isGistURL, getEmbedURL, type ThemeAppearance } from './utils.js'
 
 export const PROVIDER_ID = 'embed:gist'
 
-const Gist: React.FC<EmbeddedComponentProps> = props => {
-  const { href } = props
-  const contentFrame = useRef<HTMLIFrameElement>(null)
-  const [frameId] = useState('gist-' + Math.random())
+function getThemeAppearance(app: Environment): ThemeAppearance {
+  const isDark = app.themes
+    .getActiveThemes()
+    .some(theme => theme.metadata.themeAppearance === 'dark')
+  return isDark ? 'dark' : 'light'
+}
 
-  if (!href) {
+/**
+ * Creates the Gist embedding provider bound to the given Inkdrop environment.
+ * The environment is needed to detect the active theme appearance so the
+ * embedded gist can be rendered in dark mode.
+ */
+export function createGistProvider(app: Environment): EmbeddingProvider {
+  const Gist: React.FC<EmbeddedComponentProps> = props => {
+    const { href } = props
+    const contentFrame = useRef<HTMLIFrameElement>(null)
+    const [frameId] = useState('gist-' + Math.random())
+    const [theme, setTheme] = useState<ThemeAppearance>(() =>
+      getThemeAppearance(app)
+    )
+
+    useEffect(() => {
+      const disposable = app.themes.onDidChangeActiveThemes(() => {
+        setTheme(getThemeAppearance(app))
+      })
+      return () => disposable.dispose()
+    }, [])
+
+    if (!href) {
+      return (
+        <div className="embed-error">
+          <p>Invalid Gist URL.</p>
+        </div>
+      )
+    }
+
+    const url = getEmbedURL(href, frameId, theme)
+
     return (
-      <div className="embed-error">
-        <p>Invalid Gist URL.</p>
-      </div>
+      <iframe
+        id={frameId}
+        className="embed-frame"
+        ref={contentFrame}
+        src={url}
+      />
     )
   }
 
-  const url = getEmbedURL(href, frameId)
-
-  return (
-    <iframe
-      id={frameId}
-      className="embed-frame"
-      ref={contentFrame}
-      src={url}
-    />
-  )
-}
-
-export const gistProvider: EmbeddingProvider = {
-  id: PROVIDER_ID,
-  test: (url: string) => isGistURL(url),
-  getComponent: () => Gist
+  return {
+    id: PROVIDER_ID,
+    test: (url: string) => isGistURL(url),
+    getComponent: () => Gist
+  }
 }
