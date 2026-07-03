@@ -1,5 +1,6 @@
-import { markdownRenderer } from 'inkdrop'
 import type { Environment, IInkdropPlugin } from '@inkdropapp/types'
+import { markdownRenderer } from 'inkdrop'
+
 import { createGistProvider, PROVIDER_ID } from './gist.js'
 
 class InkdropPlugin implements IInkdropPlugin {

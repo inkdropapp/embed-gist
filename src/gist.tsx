@@ -1,9 +1,6 @@
+import type { EmbeddedComponentProps, EmbeddingProvider, Environment } from '@inkdropapp/types'
 import { useEffect, useRef, useState } from 'react'
-import type {
-  EmbeddedComponentProps,
-  EmbeddingProvider,
-  Environment
-} from '@inkdropapp/types'
+
 import { isGistURL, getEmbedURL, type ThemeAppearance } from './utils.js'
 
 export const PROVIDER_ID = 'embed:gist'
@@ -25,9 +22,7 @@ export function createGistProvider(app: Environment): EmbeddingProvider {
     const { href } = props
     const contentFrame = useRef<HTMLIFrameElement>(null)
     const [frameId] = useState('gist-' + Math.random())
-    const [theme, setTheme] = useState<ThemeAppearance>(() =>
-      getThemeAppearance(app)
-    )
+    const [theme, setTheme] = useState<ThemeAppearance>(() => getThemeAppearance(app))
 
     useEffect(() => {
       const disposable = app.themes.onDidChangeActiveThemes(() => {
@@ -46,14 +41,7 @@ export function createGistProvider(app: Environment): EmbeddingProvider {
 
     const url = getEmbedURL(href, frameId, theme)
 
-    return (
-      <iframe
-        id={frameId}
-        className="embed-frame"
-        ref={contentFrame}
-        src={url}
-      />
-    )
+    return <iframe id={frameId} className="embed-frame" ref={contentFrame} src={url} />
   }
 
   return {
