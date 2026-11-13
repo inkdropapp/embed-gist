@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> This repository has moved to [inkdropapp/plugins](https://github.com/inkdropapp/plugins): [`packages/embed-gist`](https://github.com/inkdropapp/plugins/tree/main/packages/embed-gist). It is archived and read-only; please open issues and pull requests there.
+
 # embed-gist
 
 Embed GitHub Gists in [Inkdrop](https://www.inkdrop.app/) notes.
